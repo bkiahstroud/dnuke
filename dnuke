@@ -3,25 +3,24 @@
 # TODO: make sure no matching containers are
 #       running before attempting removal
 def remove_containers(args)
-  puts "\n"
   containers = `docker ps -aqf name=#{args}` # String
   containers = containers.split(/\n/) # Array
   unless containers.empty?
-    puts "removing containers that match: #{args}"
-    # TODO: remove false message of "container x was removed"
-    #       when container x wasn't actually removed
-    #       e.g. if the container is still running
+    puts ">>> removing containers that match: #{args}"
     containers.map do |c|
       `docker container rm #{c}`
-      puts "container #{c} was removed"
+      if `docker ps -aqf id=#{c}`.length > 0
+        puts ">>> there was an issue removing container #{c}"
+      else
+        puts ">>> container #{c} was removed"
+      end
     end
   else
-    puts "no containers removed: no containers match #{args}"
+    puts ">>> NO CONTAINERS REMOVED: no containers match #{args}"
   end
 end
 
 def remove_volumes(args)
-  puts "\n"
   volumes = `docker volume ls` # String
   volumes = volumes.squeeze(' ').chop
   volumes = volumes.split(/\nlocal /) # Array
@@ -32,13 +31,17 @@ def remove_volumes(args)
   end
   volumes = volumes.compact # remove any lingering nil values
   unless volumes.empty?
-    puts "removing volumes that match: #{args}"
+    puts ">>> removing volumes that match: #{args}"
     volumes.map do |v|
       `docker volume rm #{v}`
-      puts "volume #{v} was removed"
+      if `docker volume ls`.match(v)
+        puts ">>> there was an issue removing volume #{v}"
+      else
+        puts ">>> volume #{v} was removed"
+      end
     end
   else
-    puts "no volumes removed: no volumes match #{args}"
+    puts ">>> NO VOLUMES REMOVED: no volumes match #{args}"
   end
 end
 
@@ -46,7 +49,9 @@ unless ARGV.length == 0
   ARGV.each do |value|
     puts "\n"
     puts "I, the mighty " + File.basename(__FILE__) + ", was passed: " + value
+    puts "\n"
     remove_containers(value)
+    puts "\n"
     remove_volumes(value)
     puts "\n--------------------------------------------------------------------"
   end

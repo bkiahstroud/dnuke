@@ -2,47 +2,68 @@
 
 # TODO: make sure no matching containers are
 #       running before attempting removal
-def remove_containers(args)
-  containers = `docker ps -aqf name=#{args}` # String
-  containers = containers.split(/\n/) # Array
-  unless containers.empty?
-    puts ">>> removing containers that match: #{args}"
-    containers.map do |c|
-      `docker container rm #{c}`
-      if `docker ps -aqf id=#{c}`.length > 0
-        puts ">>> there was an issue removing container #{c}"
+def remove_containers(arg)
+  containers = matching_containers(arg)
+  puts "removing containers that match: #{arg}"
+  unless containers.nil? || containers.empty?
+    containers.each do |id, name|
+      `docker container rm #{id}`
+      if `docker ps -aqf id=#{id}`.length > 0
+        puts ">>> there was an issue removing container #{name} (#{id})"
+        puts "\n"
       else
-        puts ">>> container #{c} was removed"
+        puts "\s\scontainer #{name} was removed"
       end
     end
   else
-    puts ">>> NO CONTAINERS REMOVED: no containers match #{args}"
+    puts "\s\sNO CONTAINERS REMOVED: no containers match #{arg}"
   end
 end
 
-def remove_volumes(args)
-  volumes = `docker volume ls` # String
-  volumes = volumes.squeeze(' ').chop
-  volumes = volumes.split(/\nlocal /) # Array
-  volumes = volumes.map do |v|
-    if v.match(args)
-      v
+def matching_containers(arg)
+  container_ids_raw = `docker ps -aqf name=#{arg}`
+  container_ids = container_ids_raw.split(/\n/)
+  matching_containers = Hash.new
+
+  unless container_ids.empty?
+    container_ids.each do |id|
+      container_name = `docker ps -af id=#{id} --format "{{.Names}}"`.strip
+      matching_containers[id] = container_name
     end
   end
-  volumes = volumes.compact # remove any lingering nil values
+  matching_containers
+end
+
+def remove_volumes(arg)
+  volumes = matching_volumes(arg)
+  puts "removing volumes that match: #{arg}"
   unless volumes.empty?
-    puts ">>> removing volumes that match: #{args}"
     volumes.map do |v|
       `docker volume rm #{v}`
       if `docker volume ls`.match(v)
         puts ">>> there was an issue removing volume #{v}"
+        puts "\n"
       else
-        puts ">>> volume #{v} was removed"
+        puts "\s\svolume #{v} was removed"
       end
     end
   else
-    puts ">>> NO VOLUMES REMOVED: no volumes match #{args}"
+    puts "\s\sNO VOLUMES REMOVED: no volumes match #{arg}"
   end
+end
+
+def matching_volumes(arg)
+  volumes_raw = `docker volume ls`
+  volumes_raw = volumes_raw.squeeze(' ').chop
+  volumes = volumes_raw.split(/\nlocal /)
+
+  volumes.map! do |v|
+    if v.match(arg)
+      v
+    end
+  end
+  volumes = volumes.compact
+  volumes
 end
 
 unless ARGV.length == 0

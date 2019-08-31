@@ -1,6 +1,30 @@
 # dnuke
 Ruby script for conveniently nuking Docker containers and volumes by name
 
+## Introduction
+The secondary purpose of this project is as follows: provide a quick and easy way for developers to remove Docker containers and volumes that fuzzily match an input / group of inputs. This is likely a niche purpose as it assumes that the developer has ruby installed on their machine, is working with Docker, is working on a project that utilizes similar naming conventions for their Docker containers / volumes, and also has a need to *remove* said containers and volumes often enough to justify the use of a script to do so. Which is exactly the kind of niche that I filled when I started developing dnuke.
+
+The primary purpose of this project makes much more sense; to further my own personal learning. I wanted a personal project that would allow me to:
+- Improve my skills with Ruby
+- Familiarize myself with Docker
+- See what it took to write a script executable from the command line
+- Create something somewhat useful, even if it's only useful for myself or my coworkers
+- Practice using `git` and GitHub
+- Write documentation
+
+#### Disclaimer
+To clarify, dnuke doesn't do anything that Docker can't do better itself. Testing for dnuke is minimal / nonexistent.
+
+If any of the features provided by this script sound appealing to you, I highly recommend that you check out the official Docker [documentation](https://docs.docker.com). [`docker system prune`](https://docs.docker.com/engine/reference/commandline/system_prune/) may be what you're looking for.
+
+**Use at your own risk.**
+
+## Requirements
+coming soon&trade;
+
+## Installation
+coming soon&trade;
+
 ## Usage
 Pass the name(s) of your containers / volumes to dnuke:
 
@@ -83,3 +107,7 @@ Error response from daemon: remove project1_postgres: volume is in use - [a01234
 
 --------------------------------------------------------------------
 ```
+
+## TODO
+- Expand functionality to encompass Docker images / networks (build caches?)
+- Add flags to give the user options as to what they want to remove (or not remove)

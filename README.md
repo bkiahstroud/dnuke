@@ -12,7 +12,7 @@ The primary purpose of this project makes much more sense; to further my own per
 - Practice using `git` and GitHub
 - Write documentation
 
-#### Disclaimer
+### Disclaimer
 To clarify, dnuke doesn't do anything that Docker can't do better itself. Testing for dnuke is minimal / nonexistent.
 
 If any of the features provided by this script sound appealing to you, I highly recommend that you check out the official Docker [documentation](https://docs.docker.com). [`docker system prune`](https://docs.docker.com/engine/reference/commandline/system_prune/) may be what you're looking for.
